@@ -22,8 +22,8 @@ from planetsynth import PlanetSynth
 
 logt = 9  # log(planetary age) in yrs
 M = 0.4  # mass in Jupiter masses
-Z = 0.2  # heavy-element mass
-Ze = 0.02  # atmospheric metallicity
+Z = 0.2  # bulk heavy-element content (mass fraction)
+Ze = 0.02  # atmospheric metallicity (mass fraction)
 logF = 5  # log(incident stellar irradiation) in erg/s/cm2
 planet_params = [M, Z, Ze, logF]
 
