@@ -8,10 +8,10 @@ Installation is simple: download or clone this repository, navigate into the dir
 pip install .
 ```
 
-or
+which is the preferred way to install planetsynth. Alternatively, you can also run
 
 ```
-python setup.py
+python setup.py install
 ```
 
 Note that the package requires numpy and scipy to function.
