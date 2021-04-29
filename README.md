@@ -7,13 +7,10 @@ Installation is simple: download or clone this repository, navigate into the dir
 ```
 pip install .
 ```
-
 which is the preferred way to install planetsynth. Alternatively, you can also run
-
 ```
 python setup.py install
 ```
-
 Note that the package requires numpy and scipy to function.
 
 ### Usage
@@ -30,7 +27,6 @@ planet_params = [M, Z, Ze, logF]
 pls = PlanetSynth()
 pred = pls.predict(logt, planet_params)
 ```
-
-See examples/examples.ipynb for more examples and in-depth explanations.
+See examples/example.ipynb for more examples and in-depth explanations.
 
 ### Credits
