@@ -13,11 +13,7 @@ class PlanetSynth:
 
      Args:
         verbose (bool, optional): Print out warnings if input parameters
-        are out of range or the interpolation has to fall back on
-        nearest-neighbour interpolation. Defaults to True.
-
-    Attributes:
-        # to-do: list attributes
+        are out of range. Defaults to True.
     """
 
     def __init__(self, verbose=True) -> None:
