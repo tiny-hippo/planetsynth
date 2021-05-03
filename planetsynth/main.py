@@ -9,11 +9,11 @@ from .support.constants import M_jup, R_jup, L_sun, sigma_b, G
 
 class PlanetSynth:
     """
-     Synthetic cooling track generation for giant planets.
+    Synthetic cooling track generation for giant planets.
 
-     Args:
-        verbose (bool, optional): Print out warnings if input parameters
-        are out of range. Defaults to True.
+    Args:
+       verbose (bool, optional): Print out warnings if input parameters
+       are out of range. Defaults to True.
     """
 
     def __init__(self, verbose=True) -> None:
@@ -53,7 +53,7 @@ class PlanetSynth:
 
         # output array
         self.i_R = 0  # index for the radius in R_jup
-        self.i_logL = 1  # index for the log10 luminosity in Lsun
+        self.i_logL = 1  # index for the log10 luminosity in L_sun
         self.i_Teff = 2  # index for the effective temperature in K
         self.i_logg = 3  # index for the log10 gravitational acceleration
         self.num_targets = 4
