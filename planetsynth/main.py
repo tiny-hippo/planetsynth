@@ -44,7 +44,7 @@ class PlanetSynth:
         self.i_Zatm = 2  # index for the atmospheric metallicity
         self.i_logF = 3  # index for the log10 stellar flux in lerg/s/cm2
         self.num_features = 4
-        self.num_timesteps = 16
+        self.num_timesteps = 32
         self.min_logage = 7  # in yrs
         self.max_logage = 10  # in yrs
         self.log_time = np.linspace(
@@ -79,7 +79,7 @@ class PlanetSynth:
 
     def __load_interpolator(self) -> None:
         """ Loads the RegularGridInterpolator object. """
-        fname = "RegularGridInterpolator.pkl"
+        fname = "RegularGridInterpolator_32.pkl"
         src = os.path.join(self.interpolant_path, fname)
 
         if not os.path.isfile(src):
