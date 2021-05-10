@@ -36,7 +36,7 @@ class PlanetSynth:
         self.max_M3 = 5
         self.max_Z3 = 0.2
         self.max_M4 = 30
-        self.max_Z4 = 0.036
+        self.max_Z4 = 0.04
 
         # input array
         self.i_M = 0  # index for the mass in M_j
@@ -289,10 +289,10 @@ class PlanetSynth:
                     * M = 0.1 - 1: Z = 0 - 0.8
                     * M = 1 - 3: Z = 0 - 0.5
                     * M = 3 - 5: Z = 0 - 0.2
-                    * M > 5: Z = 0 - 0.036
+                    * M > 5: Z = 0 - 0.04
                 Atmospheric metallicity: Depending on mass
                     * M = 0.1 - 5: Zatm = 0 - 0.1
-                    * M > 5: Zatm = 0 - 0.036
+                    * M > 5: Zatm = 0 - 0.04
                 log(Irradiation): 1 - 9
 
         Returns:
@@ -367,10 +367,10 @@ class PlanetSynth:
                     * M = 0.1 - 1: Z = 0 - 0.8
                     * M = 1 - 3: Z = 0 - 0.5
                     * M = 3 - 5: Z = 0 - 0.2
-                    * M > 5: Z = 0 - 0.036
+                    * M > 5: Z = 0 - 0.04
                 Atmospheric metallicity: Depending on mass
                     * M = 0.1 - 5: Zatm = 0 - 0.1
-                    * M > 5: Zatm = 0 - 0.036
+                    * M > 5: Zatm = 0 - 0.04
                 log(Irradiation): 1 - 9
         kind (str, optional): Order of interpolation. Defaults to "cubic".
 
