@@ -39,7 +39,7 @@ class PlanetSynth:
         self.max_Z4 = 0.04
 
         # input array
-        self.i_M = 0  # index for the mass in M_j
+        self.i_M = 0  # index for the mass in M_jup
         self.i_Z = 1  # index for the bulk metallicity
         self.i_Zatm = 2  # index for the atmospheric metallicity
         self.i_logF = 3  # index for the log10 stellar flux in lerg/s/cm2
@@ -284,16 +284,15 @@ class PlanetSynth:
                 cooling of a single planet, or (n_planets, 4) for several.
 
                 The following input ranges are supported:
-                Mass: 0.1 - 10
+                Mass: 0.1 < M [M_jup] < 30
                 Metallicity: Depending on the mass
-                    * M = 0.1 - 1: Z = 0 - 0.8
-                    * M = 1 - 3: Z = 0 - 0.5
-                    * M = 3 - 5: Z = 0 - 0.2
-                    * M > 5: Z = 0 - 0.04
+                    * 0.1 < M [M_jup] < 1: Z = 0 - 0.8
+                    * 1 < M [M_jup] < 3: Z = 0 - 0.5
+                    * 3 < M [M_jup] < 5: Z = 0 - 0.2
+                    * 5 < M [M_jup] < 30: Z = 0 - 0.04
                 Atmospheric metallicity: Depending on mass
-                    * M = 0.1 - 5: Zatm = 0 - 0.1
-                    * M > 5: Zatm = 0 - 0.04
-                log(Irradiation): 1 - 9
+                    * 0 < Ze < min(0.1, Z)
+                log(Irradiation): 1 < logF < 9, F in erg/s/cm2
 
         Returns:
             array_like: Array of the synthetic cooling track calculated
@@ -309,7 +308,6 @@ class PlanetSynth:
                 res[:] = np.nan
                 return res
             else:
-
                 prediction = self.reg(planet_params)[0]
         else:
             res = np.zeros(
@@ -362,17 +360,16 @@ class PlanetSynth:
                 cooling of a single planet, or (n_planets, 4) for several.
 
                 The following input ranges are supported:
-                Mass: 0.1 - 10
+                Mass: 0.1 < M [M_jup] < 30
                 Metallicity: Depending on the mass
-                    * M = 0.1 - 1: Z = 0 - 0.8
-                    * M = 1 - 3: Z = 0 - 0.5
-                    * M = 3 - 5: Z = 0 - 0.2
-                    * M > 5: Z = 0 - 0.04
+                    * 0.1 < M [M_jup] < 1: Z = 0 - 0.8
+                    * 1 < M [M_jup] < 3: Z = 0 - 0.5
+                    * 3 < M [M_jup] < 5: Z = 0 - 0.2
+                    * 5 < M [M_jup] < 30: Z = 0 - 0.04
                 Atmospheric metallicity: Depending on mass
-                    * M = 0.1 - 5: Zatm = 0 - 0.1
-                    * M > 5: Zatm = 0 - 0.04
-                log(Irradiation): 1 - 9
-        kind (str, optional): Order of interpolation. Defaults to "cubic".
+                    * 0 < Ze < min(0.1, Z)
+                log(Irradiation): 1 < logF < 9, F in erg/s/cm2
+            kind (str, optional): Order of interpolation. Defaults to "cubic".
 
         Returns:
             array_like: Array of the synthetic cooling track calculated
