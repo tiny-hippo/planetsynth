@@ -29,4 +29,5 @@ pred = pls.predict(logt, planet_params)
 ```
 See examples/example.ipynb for more examples and in-depth explanations.
 
-### Credits
+### Reference
+https://ui.adsabs.harvard.edu/abs/2021arXiv210800949M/abstract
