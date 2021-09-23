@@ -65,7 +65,11 @@ class PlanetSynth:
     def __unzip(zipPath):
         """Extracts the interpolator file from the split zip files.
         Credits to Guven Degirmenci on StackOverflow."""
-        zips = os.listdir(zipPath)
+        tempFile = os.path.join(zipPath, "tmp.zip")
+        if os.path.isfile(tempFile):
+            os.remove(tempFile)
+
+        zips = sorted(os.listdir(zipPath))
         for zipName in zips:
             if "zip" not in zipName:
                 continue
@@ -75,7 +79,7 @@ class PlanetSynth:
 
         with zipfile.ZipFile(os.path.join(zipPath, "tmp.zip"), "r") as zipObj:
             zipObj.extractall(zipPath)
-        os.remove(os.path.join(zipPath, "tmp.zip"))
+        os.remove(tempFile)
 
     def __load_interpolator(self) -> None:
         """ Loads the RegularGridInterpolator object. """
