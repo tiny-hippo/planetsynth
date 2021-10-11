@@ -1,6 +1,6 @@
 ## planetsynth
 
-planetsynth is a python tool to generate cooling tracks for giant planets.
+planetsynth is a python package to generate cooling tracks for giant planets.
 
 ### Installation
 Installation is simple: download or clone this repository, navigate into the directory and execute
@@ -30,4 +30,4 @@ pred = pls.predict(logt, planet_params)
 See examples/example.ipynb for more examples and in-depth explanations.
 
 ### Reference
-https://ui.adsabs.harvard.edu/abs/2021MNRAS.tmp.2090M/abstract
+https://ui.adsabs.harvard.edu/abs/2021MNRAS.507.2094M/abstract
