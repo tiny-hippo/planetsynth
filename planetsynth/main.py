@@ -2,6 +2,7 @@ import os
 import pickle
 import zipfile
 import numpy as np
+from numpy.typing import ArrayLike
 from pathlib import Path
 from scipy.interpolate import interp1d
 from .support.constants import M_jup, R_jup, L_sun, sigma_b, G
@@ -14,9 +15,13 @@ class PlanetSynth:
     Args:
        verbose (bool, optional): Print out warnings if input parameters
        are out of range. Defaults to True.
+       dtype (type, optional): Data type of arrays. Can be either
+       numpy.float32 or numpy.float64. It may be useful to use float32 for
+       very large input arrays to reduce memory usage.
+       Defaults to numpy.float64.
     """
 
-    def __init__(self, verbose=True) -> None:
+    def __init__(self, verbose: str = True, dtype: type = np.float64) -> None:
         self.interpolant_path = Path(__file__).parent / "interpolators"
         self.verbose = verbose
 
@@ -37,6 +42,11 @@ class PlanetSynth:
         self.max_Z3 = 0.2
         self.max_M4 = 30
         self.max_Z4 = 0.04
+
+        # data type of arrays
+        if dtype not in [np.float32, np.float64]:
+            raise ValueError("dtype must be numpy.float32 or numpy.float64")
+        self.dtype = dtype
 
         # input array
         self.i_M = 0  # index for the mass in M_jup
@@ -62,7 +72,7 @@ class PlanetSynth:
         self.__load_interpolator()
 
     @staticmethod
-    def __unzip(zipPath):
+    def __unzip(zipPath: str) -> None:
         """Extracts the interpolator file from the split zip files.
         Credits to Guven Degirmenci on StackOverflow."""
         tempFile = os.path.join(zipPath, "tmp.zip")
@@ -82,7 +92,7 @@ class PlanetSynth:
         os.remove(tempFile)
 
     def __load_interpolator(self) -> None:
-        """ Loads the RegularGridInterpolator object. """
+        """Loads the RegularGridInterpolator object."""
         fname = "RegularGridInterpolator_32.pkl"
         src = os.path.join(self.interpolant_path, fname)
 
@@ -92,7 +102,7 @@ class PlanetSynth:
         with open(src, "rb") as file:
             self.reg = pickle.load(file)
 
-    def __check_input(self, planet_params) -> tuple:
+    def __check_input(self, planet_params: ArrayLike) -> tuple:
         """Checks whether the input is within the interpolation range.
 
         Args:
@@ -107,44 +117,43 @@ class PlanetSynth:
         """
 
         if not isinstance(planet_params, np.ndarray):
-            planet_params = np.asarray(planet_params)
+            planet_params = np.array(planet_params, dtype=self.dtype)
 
         self.input_dim = planet_params.ndim
 
         if self.input_dim == 1:
             input_check = False
-            if planet_params[self.i_M] <= self.max_M1:
+            if np.less_equal(planet_params[self.i_M], self.max_M1, dtype=self.dtype):
                 max_Z = self.max_Z1
-            elif planet_params[self.i_M] <= self.max_M2:
+            elif np.less_equal(planet_params[self.i_M], self.max_M2, dtype=self.dtype):
                 max_Z = self.max_Z2
-            elif planet_params[self.i_M] <= self.max_M3:
+            elif np.less_equal(planet_params[self.i_M], self.max_M3, dtype=self.dtype):
                 max_Z = self.max_Z3
             else:
                 max_Z = self.max_Z4
-            if (
-                planet_params[self.i_M] > self.max_M
-                or planet_params[self.i_M] < self.min_M
-            ):
+            if np.greater(
+                planet_params[self.i_M], self.max_M, dtype=self.dtype
+            ) or np.less(planet_params[self.i_M], self.min_M, dtype=self.dtype):
                 if self.verbose:
                     print(f"M = {planet_params[self.i_M]:.2f} out of range")
-            elif (
-                planet_params[self.i_Z] > max_Z or planet_params[self.i_Z] < self.min_Z
-            ):
+            elif np.greater(
+                planet_params[self.i_Z], max_Z, dtype=self.dtype
+            ) or np.less(planet_params[self.i_Z], self.min_Z, dtype=self.dtype):
                 if self.verbose:
                     print(f"Z = {planet_params[self.i_Z]:.2f} out of range")
-            elif (
-                planet_params[self.i_logF] > self.max_logF
-                or planet_params[self.i_logF] < self.min_logF
-            ):
+            elif np.greater(
+                planet_params[self.i_logF], self.max_logF, dtype=self.dtype
+            ) or np.less(planet_params[self.i_logF], self.min_logF, dtype=self.dtype):
                 if self.verbose:
                     print(f"logF = {planet_params[self.i_logF]:.2f} out of range")
-            elif (
-                planet_params[self.i_Zatm] > self.max_Ze
-                or planet_params[self.i_Zatm] < self.min_Ze
-            ):
+            elif np.greater(
+                planet_params[self.i_Zatm], self.max_Ze, dtype=self.dtype
+            ) or np.less(planet_params[self.i_Zatm], self.min_Ze, dtype=self.dtype):
                 if self.verbose:
                     print(f"Zatm = {planet_params[self.i_Zatm]:.2f} out of range")
-            elif planet_params[self.i_Zatm] > planet_params[self.i_Z]:
+            elif np.greater(
+                planet_params[self.i_Zatm], planet_params[self.i_Z], dtype=self.dtype
+            ):
                 if self.verbose:
                     print(
                         f"Zatm = {planet_params[self.i_Zatm]:.2f} > Z = {planet_params[self.i_Z]:.2f}"
@@ -156,38 +165,73 @@ class PlanetSynth:
 
         elif self.input_dim == 2:
             i1 = np.logical_and(
-                planet_params[:, self.i_M] >= self.min_M,
-                planet_params[:, self.i_M] <= self.max_M,
+                np.greater_equal(
+                    planet_params[:, self.i_M], self.min_M, dtype=self.dtype
+                ),
+                np.less_equal(planet_params[:, self.i_M], self.max_M, dtype=self.dtype),
             )
             iM1 = np.logical_and(
-                planet_params[:, self.i_M] <= self.max_M1,
-                planet_params[:, self.i_Z] <= self.max_Z1,
+                np.less_equal(
+                    planet_params[:, self.i_M], self.max_M1, dtype=self.dtype
+                ),
+                np.less_equal(
+                    planet_params[:, self.i_Z], self.max_Z1, dtype=self.dtype
+                ),
             )
             iM2 = np.logical_and(
-                planet_params[:, self.i_M] > self.max_M1,
-                planet_params[:, self.i_M] <= self.max_M2,
+                np.greater(planet_params[:, self.i_M], self.max_M1, dtype=self.dtype),
+                np.less_equal(
+                    planet_params[:, self.i_M], self.max_M2, dtype=self.dtype
+                ),
             )
-            iM2 = np.logical_and(iM2, planet_params[:, self.i_Z] <= self.max_Z2)
+            iM2 = np.logical_and(
+                iM2,
+                np.less_equal(
+                    planet_params[:, self.i_Z], self.max_Z2, dtype=self.dtype
+                ),
+            )
             iM3 = np.logical_and(
-                planet_params[:, self.i_M] > self.max_M2,
-                planet_params[:, self.i_M] <= self.max_M3,
+                np.greater(planet_params[:, self.i_M], self.max_M2, dtype=self.dtype),
+                np.less_equal(
+                    planet_params[:, self.i_M], self.max_M3, dtype=self.dtype
+                ),
             )
-            iM3 = np.logical_and(iM3, planet_params[:, self.i_Z] <= self.max_Z3)
+            iM3 = np.logical_and(
+                iM3,
+                np.less_equal(
+                    planet_params[:, self.i_Z], self.max_Z3, dtype=self.dtype
+                ),
+            )
             iM4 = np.logical_and(
-                planet_params[:, self.i_M] > self.max_M3,
-                planet_params[:, self.i_M] <= self.max_M4,
+                np.greater(planet_params[:, self.i_M], self.max_M3, dtype=self.dtype),
+                np.less_equal(
+                    planet_params[:, self.i_M], self.max_M4, dtype=self.dtype
+                ),
             )
-            iM4 = np.logical_and(iM4, planet_params[:, self.i_Z] <= self.max_Z4)
+            iM4 = np.logical_and(
+                iM4,
+                np.less_equal(
+                    planet_params[:, self.i_Z], self.max_Z4, dtype=self.dtype
+                ),
+            )
             i2 = np.logical_or(iM1, iM2)
             i2 = np.logical_or(i2, iM3)
             i2 = np.logical_or(i2, iM4)
             i3 = np.logical_and(
-                planet_params[:, self.i_logF] >= self.min_logF,
-                planet_params[:, self.i_logF] <= self.max_logF,
+                np.greater_equal(
+                    planet_params[:, self.i_logF], self.min_logF, dtype=self.dtype
+                ),
+                np.less_equal(
+                    planet_params[:, self.i_logF], self.max_logF, dtype=self.dtype
+                ),
             )
             i4 = np.logical_and(
-                planet_params[:, self.i_Zatm] >= self.min_Ze,
-                planet_params[:, self.i_Zatm] <= self.max_Ze,
+                np.greater_equal(
+                    planet_params[:, self.i_Zatm], self.min_Ze, dtype=self.dtype
+                ),
+                np.less_equal(
+                    planet_params[:, self.i_Zatm], self.max_Ze, dtype=self.dtype
+                ),
             )
 
             i = np.logical_and(i1, i2)
@@ -199,7 +243,9 @@ class PlanetSynth:
         else:
             raise ValueError("Failed in __check_input: Input has the wrong shape.")
 
-    def __get_time_interpolant(self, prediction, kind="cubic") -> interp1d:
+    def __get_time_interpolant(
+        self, prediction: ArrayLike, kind: str = "cubic"
+    ) -> interp1d:
         """Helper function to create a 1d interpolant in time.
 
         Args:
@@ -212,7 +258,7 @@ class PlanetSynth:
         """
         return interp1d(self.log_time, prediction.T, axis=1, kind=kind)
 
-    def __get_Teff(self, prediction) -> np.ndarray:
+    def __get_Teff(self, prediction: ArrayLike) -> np.ndarray:
         """Calculates the effective temperature of a black body given its
         radius and luminosity.
 
@@ -239,7 +285,7 @@ class PlanetSynth:
             raise ValueError("Failed in __get_Teff: Input has the wrong shape.")
         return (L / (4 * np.pi * sigma_b * R ** 2)) ** 0.25
 
-    def __get_logg(self, planet_params, prediction) -> np.ndarray:
+    def __get_logg(self, planet_params: ArrayLike, prediction: ArrayLike) -> np.ndarray:
         """Calculates the log10 of the gravitational acceleration
         at the photosphere.
 
@@ -274,7 +320,7 @@ class PlanetSynth:
 
         return np.log10(G * M / R ** 2)
 
-    def synthesize(self, planet_params) -> np.ndarray:
+    def synthesize(self, planet_params: ArrayLike) -> np.ndarray:
         """Synthesizes a cooling track for a set of planetary parameters in
         terms of planetary mass M [in Jupiter masses], metallicity Z
         and the log of the incident stellar irradiation logF [in erg/s/cm2].
@@ -307,7 +353,9 @@ class PlanetSynth:
         """
         planet_params, self.check_params = self.__check_input(planet_params)
         if self.input_dim == 1:
-            res = np.zeros((self.num_timesteps, self.num_targets))
+            res = np.zeros(
+                shape=(self.num_timesteps, self.num_targets), dtype=self.dtype
+            )
             if not self.check_params:
                 res[:] = np.nan
                 return res
@@ -315,7 +363,8 @@ class PlanetSynth:
                 prediction = self.reg(planet_params)[0]
         else:
             res = np.zeros(
-                (planet_params.shape[0], self.num_timesteps, self.num_targets)
+                shape=(planet_params.shape[0], self.num_timesteps, self.num_targets),
+                dtype=self.dtype,
             )
             res[~self.check_params, :, :] = np.nan
             pp = planet_params[self.check_params]
@@ -347,7 +396,9 @@ class PlanetSynth:
             res[self.check_params, :, self.i_logg] = self.__get_logg(pp, prediction)
         return res
 
-    def predict(self, logt, planet_params, kind="cubic") -> np.ndarray:
+    def predict(
+        self, logt: ArrayLike, planet_params: ArrayLike, kind: str = "cubic"
+    ) -> np.ndarray:
         """Predicts the radius, log(luminosity) and effective temperature
         at a specific log(time) [yr] for a set of planetary parameters
         in terms of planetary mass M [in Jupiter masses], metallicity Z
@@ -384,7 +435,7 @@ class PlanetSynth:
                 effective temperature [K].
         """
         if not isinstance(logt, np.ndarray):
-            logt = np.asarray(logt)
+            logt = np.array(logt, dtype=self.dtype)
 
         if np.any(logt < self.min_logage) or np.any(logt > self.max_logage):
             raise ValueError("Failed in predict because logt is out of range.")
@@ -392,14 +443,17 @@ class PlanetSynth:
         prediction = self.synthesize(planet_params)
         if np.any(np.isnan(prediction)):
             if self.input_dim == 1:
-                result = np.empty(self.num_targets)
+                result = np.empty(shape=self.num_targets, dtype=self.dtype)
                 result.fill(np.nan)
             else:
                 if np.isscalar(logt):
-                    result = np.empty((prediction.shape[0], self.num_targets))
+                    result = np.empty(
+                        shape=(prediction.shape[0], self.num_targets), dtype=self.dtype
+                    )
                 else:
                     result = np.empty(
-                        (prediction.shape[0], logt.shape[0], self.num_targets)
+                        shape=(prediction.shape[0], logt.shape[0], self.num_targets),
+                        dtype=self.dtype,
                     )
                 result.fill(np.nan)
                 i = np.where(np.isfinite(prediction))
