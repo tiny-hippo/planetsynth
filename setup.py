@@ -4,7 +4,7 @@ setup(
     name="planetsynth",
     version="1.0.1",
     description="a python tool to generate cooling tracks for giant planets",
-    url="",
+    url="https://github.com/tiny-hippo/planetsynth",
     author="Simon Müller",
     author_email="simon.mueller7@uzh.ch",
     license="MIT",
