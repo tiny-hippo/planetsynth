@@ -1,9 +1,9 @@
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
 from .constants import sigma_b
 
 
-def get_L(R: ArrayLike, Teff: ArrayLike) -> np.ndarray:
+def get_L(R: ArrayLike, Teff: ArrayLike) -> NDArray:
     """Calculates the luminosity of a black body given its
     radius and effective temperature.
 
@@ -17,7 +17,7 @@ def get_L(R: ArrayLike, Teff: ArrayLike) -> np.ndarray:
     return 4 * np.pi * sigma_b * Teff ** 4 * R ** 2
 
 
-def get_R(L: ArrayLike, Teff: ArrayLike) -> np.ndarray:
+def get_R(L: ArrayLike, Teff: ArrayLike) -> NDArray:
     """Calculates the radius of a black body given its
     luminosity and effective temperature.
 
@@ -31,7 +31,7 @@ def get_R(L: ArrayLike, Teff: ArrayLike) -> np.ndarray:
     return np.sqrt(L / (4 * np.pi * sigma_b * Teff ** 4))
 
 
-def get_F(L: ArrayLike, d: ArrayLike) -> np.ndarray:
+def get_F(L: ArrayLike, d: ArrayLike) -> NDArray:
     """Calculates the incident day-side flux given the stellar luminosity L
     and planetary semi-major axis d.
 
@@ -45,7 +45,7 @@ def get_F(L: ArrayLike, d: ArrayLike) -> np.ndarray:
     return L / (4 * np.pi * d ** 2)
 
 
-def get_Teq_from_L(L: ArrayLike, d: ArrayLike, A: ArrayLike) -> np.ndarray:
+def get_Teq_from_L(L: ArrayLike, d: ArrayLike, A: ArrayLike) -> NDArray:
     """Calculates the equilibrium temperature of a planet
     given the stellar luminosity L, planetary semi-major axis d
     and surface albedo A:
@@ -63,7 +63,7 @@ def get_Teq_from_L(L: ArrayLike, d: ArrayLike, A: ArrayLike) -> np.ndarray:
 
 def get_Teq_from_T(
     T: ArrayLike, R: ArrayLike, d: ArrayLike, A: ArrayLike
-) -> np.ndarray:
+) -> NDArray:
     """Calculates the equilibrium temperature of a planet
     given the stellar effective temperature and temperature,
     planetary semi-major axis d and surface albedo A:

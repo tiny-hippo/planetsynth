@@ -2,8 +2,9 @@ import os
 import pickle
 import zipfile
 import numpy as np
-from numpy.typing import ArrayLike
 from pathlib import Path
+from typing import Tuple
+from numpy.typing import ArrayLike, NDArray
 from scipy.interpolate import interp1d
 from .support.constants import M_jup, R_jup, L_sun, sigma_b, G
 
@@ -102,7 +103,7 @@ class PlanetSynth:
         with open(src, "rb") as file:
             self.reg = pickle.load(file)
 
-    def __check_input(self, planet_params: ArrayLike) -> tuple:
+    def __check_input(self, planet_params: ArrayLike) -> Tuple[ArrayLike, ArrayLike]:
         """Checks whether the input is within the interpolation range.
 
         Args:
@@ -258,7 +259,7 @@ class PlanetSynth:
         """
         return interp1d(self.log_time, prediction.T, axis=1, kind=kind)
 
-    def __get_Teff(self, prediction: ArrayLike) -> np.ndarray:
+    def __get_Teff(self, prediction: ArrayLike) -> NDArray:
         """Calculates the effective temperature of a black body given its
         radius and luminosity.
 
@@ -285,7 +286,7 @@ class PlanetSynth:
             raise ValueError("Failed in __get_Teff: Input has the wrong shape.")
         return (L / (4 * np.pi * sigma_b * R ** 2)) ** 0.25
 
-    def __get_logg(self, planet_params: ArrayLike, prediction: ArrayLike) -> np.ndarray:
+    def __get_logg(self, planet_params: ArrayLike, prediction: ArrayLike) -> NDArray:
         """Calculates the log10 of the gravitational acceleration
         at the photosphere.
 
@@ -320,7 +321,7 @@ class PlanetSynth:
 
         return np.log10(G * M / R ** 2)
 
-    def synthesize(self, planet_params: ArrayLike) -> np.ndarray:
+    def synthesize(self, planet_params: ArrayLike) -> NDArray:
         """Synthesizes a cooling track for a set of planetary parameters in
         terms of planetary mass M [in Jupiter masses], metallicity Z
         and the log of the incident stellar irradiation logF [in erg/s/cm2].
@@ -398,7 +399,7 @@ class PlanetSynth:
 
     def predict(
         self, logt: ArrayLike, planet_params: ArrayLike, kind: str = "cubic"
-    ) -> np.ndarray:
+    ) -> NDArray:
         """Predicts the radius, log(luminosity) and effective temperature
         at a specific log(time) [yr] for a set of planetary parameters
         in terms of planetary mass M [in Jupiter masses], metallicity Z
