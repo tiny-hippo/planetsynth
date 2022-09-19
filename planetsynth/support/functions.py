@@ -14,7 +14,7 @@ def get_L(R: ArrayLike, Teff: ArrayLike) -> NDArray:
     Returns:
         ArrayLike: The luminosity of a black body in erg/s.
     """
-    return 4 * np.pi * sigma_b * Teff ** 4 * R ** 2
+    return 4 * np.pi * sigma_b * Teff**4 * R**2
 
 
 def get_R(L: ArrayLike, Teff: ArrayLike) -> NDArray:
@@ -28,10 +28,10 @@ def get_R(L: ArrayLike, Teff: ArrayLike) -> NDArray:
     Returns:
         ArrayLike: The radius of a black body in cm.
     """
-    return np.sqrt(L / (4 * np.pi * sigma_b * Teff ** 4))
+    return np.sqrt(L / (4 * np.pi * sigma_b * Teff**4))
 
 
-def get_F(L: ArrayLike, d: ArrayLike) -> NDArray:
+def get_F_from_L(L: ArrayLike, d: ArrayLike) -> NDArray:
     """Calculates the incident day-side flux given the stellar luminosity L
     and planetary semi-major axis d.
 
@@ -40,9 +40,26 @@ def get_F(L: ArrayLike, d: ArrayLike) -> NDArray:
         d (ArrayLike): Planetary semi-major axis in cm.
 
     Returns:
-        np.ndarray: The incident day-side flux in erg/s/cm2
+        np.ndarray: The incident day-side flux in erg/s/cm2.
     """
-    return L / (4 * np.pi * d ** 2)
+    return L / (4 * np.pi * d**2)
+
+
+def get_F_from_Teq(Teq: ArrayLike, d: ArrayLike, A: ArrayLike) -> NDArray:
+    """Calculates the incident day-side flux given the
+    given the planetary equilibrium temperature Teq,
+    semi-major axis d and surface albedo A:
+
+    Args:
+        L (ArrayLike): Stellar luminosity in erg/s.
+        d (ArrayLike): Planetary semi-major axis in cm.
+        A (ArrayLike): Planetary albedo.
+
+    Returns:
+        np.ndarray: The incident day-side flux in erg/s/cm2.
+    """
+    L_star = get_L_from_Teq(Teq, d, A)
+    return get_F_from_L(L_star, d)
 
 
 def get_Teq_from_L(L: ArrayLike, d: ArrayLike, A: ArrayLike) -> NDArray:
@@ -58,12 +75,10 @@ def get_Teq_from_L(L: ArrayLike, d: ArrayLike, A: ArrayLike) -> NDArray:
     Returns:
         np.ndarray: The planetary equilibrium temperature in K.
     """
-    return ((L * (1 - A)) / (16 * sigma_b * np.pi * d ** 2)) ** 0.25
+    return ((L * (1 - A)) / (16 * sigma_b * np.pi * d**2)) ** 0.25
 
 
-def get_Teq_from_T(
-    T: ArrayLike, R: ArrayLike, d: ArrayLike, A: ArrayLike
-) -> NDArray:
+def get_Teq_from_T(T: ArrayLike, R: ArrayLike, d: ArrayLike, A: ArrayLike) -> NDArray:
     """Calculates the equilibrium temperature of a planet
     given the stellar effective temperature and temperature,
     planetary semi-major axis d and surface albedo A:
@@ -78,3 +93,19 @@ def get_Teq_from_T(
         np.ndarray: The planetary equilibrium temperature in K.
     """
     return T * np.sqrt(R / (2 * d)) * (1 - A) ** 0.25
+
+
+def get_L_from_Teq(Teq: ArrayLike, d: ArrayLike, A: ArrayLike) -> NDArray:
+    """Calculates the stellar luminosity
+    given the planetary equilibrium temperature Teq,
+    semi-major axis d and surface albedo A:
+
+    Args:
+        L (ArrayLike): Stellar luminosity in erg/s.
+        d (ArrayLike): Planetary semi-major axis in cm.
+        A (ArrayLike): Planetary albedo.
+
+    Returns:
+        np.ndarray: The stellar luminosity in erg/s.
+    """
+    return 16 * sigma_b * np.pi * d**2 * Teq**4 / (1 - A)
