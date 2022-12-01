@@ -52,7 +52,7 @@ class PlanetSynth:
         # input array
         self.i_M = 0  # index for the mass in M_jup
         self.i_Z = 1  # index for the bulk metallicity
-        self.i_Zatm = 2  # index for the atmospheric metallicity
+        self.i_Z_atm = 2  # index for the atmospheric metallicity
         self.i_logF = 3  # index for the log10 stellar flux in lerg/s/cm2
         self.num_features = 4
         self.num_timesteps = 32
@@ -148,16 +148,16 @@ class PlanetSynth:
                 if self.verbose:
                     print(f"logF = {planet_params[self.i_logF]:.2f} out of range")
             elif np.greater(
-                planet_params[self.i_Zatm], self.max_Ze, dtype=self.dtype
-            ) or np.less(planet_params[self.i_Zatm], self.min_Ze, dtype=self.dtype):
+                planet_params[self.i_Z_atm], self.max_Ze, dtype=self.dtype
+            ) or np.less(planet_params[self.i_Z_atm], self.min_Ze, dtype=self.dtype):
                 if self.verbose:
-                    print(f"Zatm = {planet_params[self.i_Zatm]:.2f} out of range")
+                    print(f"Z_atm = {planet_params[self.i_Z_atm]:.2f} out of range")
             elif np.greater(
-                planet_params[self.i_Zatm], planet_params[self.i_Z], dtype=self.dtype
+                planet_params[self.i_Z_atm], planet_params[self.i_Z], dtype=self.dtype
             ):
                 if self.verbose:
                     print(
-                        f"Zatm = {planet_params[self.i_Zatm]:.2f} > Z = {planet_params[self.i_Z]:.2f}"
+                        f"Z_atm = {planet_params[self.i_Z_atm]:.2f} > Z = {planet_params[self.i_Z]:.2f}"
                     )
             else:
                 input_check = True
@@ -228,10 +228,10 @@ class PlanetSynth:
             )
             i4 = np.logical_and(
                 np.greater_equal(
-                    planet_params[:, self.i_Zatm], self.min_Ze, dtype=self.dtype
+                    planet_params[:, self.i_Z_atm], self.min_Ze, dtype=self.dtype
                 ),
                 np.less_equal(
-                    planet_params[:, self.i_Zatm], self.max_Ze, dtype=self.dtype
+                    planet_params[:, self.i_Z_atm], self.max_Ze, dtype=self.dtype
                 ),
             )
 
@@ -322,35 +322,34 @@ class PlanetSynth:
         return np.log10(G * M / R ** 2)
 
     def synthesize(self, planet_params: ArrayLike) -> NDArray:
-        """Synthesizes a cooling track for a set of planetary parameters in
-        terms of planetary mass M [in Jupiter masses], metallicity Z
-        and the log of the incident stellar irradiation logF [in erg/s/cm2].
+        """Synthesizes a cooling track for a set of planetary parameters
+        in terms of planetary mass M [M_jup], bulk heavy-element
+        mass-fraction Z, atmospheric heavy-element mass-fraction Z_atm,
+        and the log of the incident stellar irradiation logF [erg/s/cm2].
 
         Args:
             planet_params: (n_planets, 4), ArrayLike
                 Array of floats of the planet parameters in the
-                following order [Mass, Metallicity, log(Irradiation)].
-                The units are Jupiter masses, mass-fraction and erg/s/cm2.
+                following order: [M, Z, Z_atm, logF].
                 The shape of planet_params can either be (4,) to calculate the
                 cooling of a single planet, or (n_planets, 4) for several.
 
                 The following input ranges are supported:
-                Mass: 0.1 < M [M_jup] < 30
-                Metallicity: Depending on the mass
+                M: 0.1 < M [M_jup] < 30
+                Z: Depending on the mass
                     * 0.1 < M [M_jup] < 1: Z = 0 - 0.8
                     * 1 < M [M_jup] < 3: Z = 0 - 0.5
                     * 3 < M [M_jup] < 5: Z = 0 - 0.2
                     * 5 < M [M_jup] < 30: Z = 0 - 0.04
-                Atmospheric metallicity: Depending on mass
-                    * 0 < Ze < min(0.1, Z)
-                log(Irradiation): 1 < logF < 9, F in erg/s/cm2
+                Z_atm: 0 < Ze < min(0.1, Z)
+                logF: 1 < logF [erg/s/cm2] < 9
 
         Returns:
             ArrayLike: Array of the synthetic cooling track calculated
                 for the times defined in log_time. Shape (16, 4) for
                 a single planet, or (n_planets, 16, 4) for several.
-                The output quantities are radius [Jupiter radius],
-                log(luminosity) [solar luminosity] and effective temperature [K]
+                The output quantities are radius [R_jup],
+                log(luminosity) [L_sun] and effective temperature [K].
         """
         planet_params, self.check_params = self.__check_input(planet_params)
         if self.input_dim == 1:
@@ -379,7 +378,7 @@ class PlanetSynth:
                         f"for M = {planet_params[self.i_M]:.3f}",
                         f"Z = {planet_params[self.i_Z]:.3f}",
                         f"logF = {planet_params[self.i_logF]:.3f}",
-                        f"Z_atm = {planet_params[self.i_Zatm]:.3f}",
+                        f"Z_atm = {planet_params[self.i_Z_atm]:.3f}",
                     )
             else:
                 k = np.unique(np.where(np.isnan(prediction))[0])
@@ -402,38 +401,36 @@ class PlanetSynth:
     ) -> NDArray:
         """Predicts the radius, log(luminosity) and effective temperature
         at a specific log(time) [yr] for a set of planetary parameters
-        in terms of planetary mass M [in Jupiter masses], metallicity Z
-        and the log of the incident stellar irradiation logF [in erg/s/cm2].
-
+        in terms of planetary mass M [M_jup], bulk heavy-element
+        mass-fraction Z, atmospheric heavy-element mass-fraction Z_atm,
+        and the log of the incident stellar irradiation logF [erg/s/cm2].
+        
         Args:
             logt (ArrayLike): log of the time [yr] at which
-                to calculate the prediction. Can be ndarray or float.
+                to calculate the prediction. Can be NDArray or float.
             planet_params: (n_planets, 4), ArrayLike
                 Array of floats of the planet parameters in the
-                following order [Mass, Metallicity, log(Irradiation)].
-                The units are Jupiter masses, mass-fraction and erg/s/cm2.
+                following order: [M, Z, Z_atm, logF].
                 The shape of planet_params can either be (4,) to calculate the
                 cooling of a single planet, or (n_planets, 4) for several.
 
                 The following input ranges are supported:
-                Mass: 0.1 < M [M_jup] < 30
-                Metallicity: Depending on the mass
+                M: 0.1 < M [M_jup] < 30
+                Z: Depending on the mass
                     * 0.1 < M [M_jup] < 1: Z = 0 - 0.8
                     * 1 < M [M_jup] < 3: Z = 0 - 0.5
                     * 3 < M [M_jup] < 5: Z = 0 - 0.2
                     * 5 < M [M_jup] < 30: Z = 0 - 0.04
-                Atmospheric metallicity: Depending on mass
-                    * 0 < Ze < min(0.1, Z)
-                log(Irradiation): 1 < logF < 9, F in erg/s/cm2
+                Z_atm: 0 < Ze < min(0.1, Z)
+                logF: 1 < logF [erg/s/cm2] < 9
             kind (str, optional): Order of interpolation. Defaults to "cubic".
 
         Returns:
             ArrayLike: Array of the synthetic cooling track calculated
-                for the time(s) given in the input. Shape (n_times, 4) for
-                a single planet, or (n_planets, n_times, 4) for several.
-                The output quantities are radius [Jupiter radius],
-                log(luminosity) [solar luminosity] and
-                effective temperature [K].
+                for the times defined in log_time. Shape (16, 4) for
+                a single planet, or (n_planets, 16, 4) for several.
+                The output quantities are radius [R_jup],
+                log(luminosity) [L_sun] and effective temperature [K].
         """
         if not isinstance(logt, np.ndarray):
             logt = np.array(logt, dtype=self.dtype)
