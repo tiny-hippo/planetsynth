@@ -6,7 +6,7 @@ setup(
     description="a python tool to generate cooling tracks for giant planets",
     url="https://github.com/tiny-hippo/planetsynth",
     author="Simon Müller",
-    author_email="simon.mueller7@uzh.ch",
+    author_email="simonandres.mueller@uzh.ch",
     license="MIT",
     packages=find_packages(include=["planetsynth", "planetsynth.*"]),
     package_data={"planetsynth": ["interpolators/*.zip*"]},
