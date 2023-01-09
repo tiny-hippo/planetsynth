@@ -3,7 +3,7 @@
 G = 6.67e-8  # gravitational constant
 sigma_b = 5.6704e-5  # boltzmann constant
 L_sun = 3.828e33  # solar luminosity
-F_earth = 4.4e6  # earth flux
+F_earth = 1.361e6  # earth flux
 R_sun = 6.9598e10  # solar radius
 R_jup = 6.9173e9  # jupiter radius
 R_earth = 6.378e8  # earth radius
