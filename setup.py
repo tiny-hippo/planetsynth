@@ -10,5 +10,6 @@ setup(
     license="MIT",
     packages=find_packages(include=["planetsynth", "planetsynth.*"]),
     package_data={"planetsynth": ["interpolators/*.zip*"]},
-    install_requires=["numpy", "scipy"],
+    python_requires=">=3.8",
+    install_requires=["numpy>=1.18.5", "scipy>=1.9.0"],
 )
