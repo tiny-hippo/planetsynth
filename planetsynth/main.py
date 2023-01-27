@@ -1,12 +1,12 @@
 import os
 import pickle
 import zipfile
-import numpy as np
 from pathlib import Path
 from typing import Tuple
+import numpy as np
 from numpy.typing import ArrayLike, NDArray
 from scipy.interpolate import interp1d
-from .support.constants import M_jup, R_jup, L_sun, sigma_b, G
+from planetsynth.support.constants import M_jup, R_jup, L_sun, sigma_b, G
 
 
 class PlanetSynth:
@@ -73,24 +73,24 @@ class PlanetSynth:
         self.__load_interpolator()
 
     @staticmethod
-    def __unzip(zipPath: str) -> None:
+    def __unzip(zip_path: str) -> None:
         """Extracts the interpolator file from the split zip files.
         Credits to Guven Degirmenci on StackOverflow."""
-        tempFile = os.path.join(zipPath, "tmp.zip")
-        if os.path.isfile(tempFile):
-            os.remove(tempFile)
+        temp_file = os.path.join(zip_path, "tmp.zip")
+        if os.path.isfile(temp_file):
+            os.remove(temp_file)
 
-        zips = sorted(os.listdir(zipPath))
-        for zipName in zips:
-            if "zip" not in zipName:
+        zips = sorted(os.listdir(zip_path))
+        for zip_name in zips:
+            if "zip" not in zip_name:
                 continue
-            with open(os.path.join(zipPath, "tmp.zip"), "ab") as f:
-                with open(os.path.join(zipPath, zipName), "rb") as z:
+            with open(os.path.join(zip_path, "tmp.zip"), "ab") as f:
+                with open(os.path.join(zip_path, zip_name), "rb") as z:
                     f.write(z.read())
 
-        with zipfile.ZipFile(os.path.join(zipPath, "tmp.zip"), "r") as zipObj:
-            zipObj.extractall(zipPath)
-        os.remove(tempFile)
+        with zipfile.ZipFile(os.path.join(zip_path, "tmp.zip"), "r") as zip_obj:
+            zip_obj.extractall(zip_path)
+        os.remove(temp_file)
 
     def __load_interpolator(self) -> None:
         """Loads the RegularGridInterpolator object."""
@@ -284,7 +284,7 @@ class PlanetSynth:
             L = 10 ** prediction[self.i_logL] * L_sun
         else:
             raise ValueError("Failed in __get_Teff: Input has the wrong shape.")
-        return (L / (4 * np.pi * sigma_b * R ** 2)) ** 0.25
+        return (L / (4 * np.pi * sigma_b * R**2)) ** 0.25
 
     def __get_logg(self, planet_params: ArrayLike, prediction: ArrayLike) -> NDArray:
         """Calculates the log10 of the gravitational acceleration
@@ -319,7 +319,7 @@ class PlanetSynth:
         else:
             raise ValueError("Failed in __get_log: Input has the wrong shape.")
 
-        return np.log10(G * M / R ** 2)
+        return np.log10(G * M / R**2)
 
     def synthesize(self, planet_params: ArrayLike) -> NDArray:
         """Synthesizes a cooling track for a set of planetary parameters
@@ -404,7 +404,7 @@ class PlanetSynth:
         in terms of planetary mass M [M_jup], bulk heavy-element
         mass-fraction Z, atmospheric heavy-element mass-fraction Z_atm,
         and the log of the incident stellar irradiation logF [erg/s/cm2].
-        
+
         Args:
             logt (ArrayLike): log of the time [yr] at which
                 to calculate the prediction. Can be NDArray or float.
