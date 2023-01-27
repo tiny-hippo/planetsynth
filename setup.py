@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="planetsynth",
-    version="1.0.1",
+    version="1.0.2",
     description="a python tool to generate cooling tracks for giant planets",
     url="https://github.com/tiny-hippo/planetsynth",
     author="Simon Müller",
