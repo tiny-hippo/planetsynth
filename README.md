@@ -3,11 +3,11 @@
 planetsynth is a python package to generate cooling tracks for giant planets.
 
 ### Installation
-Installation is simple: download or clone this repository, navigate into the directory and execute
+Download or clone this repository, navigate into the directory and execute
 ```
 pip install .
-```
-which is the preferred way to install planetsynth. Alternatively, you can also run
+``` 
+Alternatively, you can also run
 ```
 python setup.py install
 ```
