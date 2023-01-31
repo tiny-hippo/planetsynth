@@ -7,11 +7,12 @@ Download or clone this repository, navigate into the directory and execute
 ```
 pip install .
 ``` 
-Alternatively, you can also run
+or 
 ```
 python setup.py install
 ```
-Note that the package requires numpy and scipy to function.
+
+The package requires numpy>=1.18.5 and scipy>=1.9.0.
 
 ### Usage
 ```python
