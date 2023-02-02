@@ -17,14 +17,22 @@ class PlanetSynth:
         verbose (bool, optional): Print out warnings if input parameters
             are out of range. Defaults to True.
         dtype (type, optional): Data type of arrays. Can be either
-            numpy.float32 or numpy.float64. It may be useful to use float32 
+            numpy.float32 or numpy.float64. It may be useful to use float32
             for very large input arrays to reduce memory usage.
             Defaults to numpy.float64.
+        reload_interpolator (bool, optional): Reload the interpolator
+            cache. Defaults to False.
     """
 
-    def __init__(self, verbose: str = True, dtype: type = np.float64) -> None:
+    def __init__(
+        self,
+        verbose: bool = True,
+        dtype: type = np.float64,
+        reload_interpolator: bool = False,
+    ) -> None:
         self.interpolant_path = Path(__file__).parent / "interpolators"
         self.verbose = verbose
+        self.reload_interpolator = reload_interpolator
         self.input_dim = 0
         self.check_params = False
 
@@ -100,6 +108,10 @@ class PlanetSynth:
         src = os.path.join(self.interpolant_path, fname)
 
         if not os.path.isfile(src):
+            self.__unzip(self.interpolant_path)
+        elif self.reload_interpolator:
+            if os.path.isfile(src):
+                os.remove(src)
             self.__unzip(self.interpolant_path)
 
         with open(src, "rb") as file:
