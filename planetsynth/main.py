@@ -138,37 +138,35 @@ class PlanetSynth:
 
         if self.input_dim == 1:
             input_check = False
-            if np.less_equal(planet_params[self.i_M], self.max_M1, dtype=self.dtype):
+            if np.less_equal(planet_params[self.i_M], self.max_M1):
                 max_Z = self.max_Z1
-            elif np.less_equal(planet_params[self.i_M], self.max_M2, dtype=self.dtype):
+            elif np.less_equal(planet_params[self.i_M], self.max_M2):
                 max_Z = self.max_Z2
-            elif np.less_equal(planet_params[self.i_M], self.max_M3, dtype=self.dtype):
+            elif np.less_equal(planet_params[self.i_M], self.max_M3):
                 max_Z = self.max_Z3
             else:
                 max_Z = self.max_Z4
-            if np.greater(
-                planet_params[self.i_M], self.max_M, dtype=self.dtype
-            ) or np.less(planet_params[self.i_M], self.min_M, dtype=self.dtype):
+            if np.greater(planet_params[self.i_M], self.max_M) or np.less(
+                planet_params[self.i_M], self.min_M
+            ):
                 if self.verbose:
                     print(f"M = {planet_params[self.i_M]:.2f} out of range")
-            elif np.greater(
-                planet_params[self.i_Z], max_Z, dtype=self.dtype
-            ) or np.less(planet_params[self.i_Z], self.min_Z, dtype=self.dtype):
+            elif np.greater(planet_params[self.i_Z], max_Z) or np.less(
+                planet_params[self.i_Z], self.min_Z
+            ):
                 if self.verbose:
                     print(f"Z = {planet_params[self.i_Z]:.2f} out of range")
-            elif np.greater(
-                planet_params[self.i_logF], self.max_logF, dtype=self.dtype
-            ) or np.less(planet_params[self.i_logF], self.min_logF, dtype=self.dtype):
+            elif np.greater(planet_params[self.i_logF], self.max_logF) or np.less(
+                planet_params[self.i_logF], self.min_logF
+            ):
                 if self.verbose:
                     print(f"logF = {planet_params[self.i_logF]:.2f} out of range")
-            elif np.greater(
-                planet_params[self.i_Z_atm], self.max_Ze, dtype=self.dtype
-            ) or np.less(planet_params[self.i_Z_atm], self.min_Ze, dtype=self.dtype):
+            elif np.greater(planet_params[self.i_Z_atm], self.max_Ze) or np.less(
+                planet_params[self.i_Z_atm], self.min_Ze
+            ):
                 if self.verbose:
                     print(f"Z_atm = {planet_params[self.i_Z_atm]:.2f} out of range")
-            elif np.greater(
-                planet_params[self.i_Z_atm], planet_params[self.i_Z], dtype=self.dtype
-            ):
+            elif np.greater(planet_params[self.i_Z_atm], planet_params[self.i_Z]):
                 if self.verbose:
                     print(
                         f"Z_atm = {planet_params[self.i_Z_atm]:.2f} > Z = {planet_params[self.i_Z]:.2f}"
@@ -180,75 +178,48 @@ class PlanetSynth:
 
         elif self.input_dim == 2:
             i1 = np.logical_and(
-                np.greater_equal(
-                    planet_params[:, self.i_M], self.min_M, dtype=self.dtype
-                ),
-                np.less_equal(planet_params[:, self.i_M], self.max_M, dtype=self.dtype),
+                np.greater_equal(planet_params[:, self.i_M], self.min_M),
+                np.less_equal(planet_params[:, self.i_M], self.max_M),
             )
             iM1 = np.logical_and(
-                np.less_equal(
-                    planet_params[:, self.i_M], self.max_M1, dtype=self.dtype
-                ),
-                np.less_equal(
-                    planet_params[:, self.i_Z], self.max_Z1, dtype=self.dtype
-                ),
+                np.less_equal(planet_params[:, self.i_M], self.max_M1),
+                np.less_equal(planet_params[:, self.i_Z], self.max_Z1),
             )
             iM2 = np.logical_and(
-                np.greater(planet_params[:, self.i_M], self.max_M1, dtype=self.dtype),
-                np.less_equal(
-                    planet_params[:, self.i_M], self.max_M2, dtype=self.dtype
-                ),
+                np.greater(planet_params[:, self.i_M], self.max_M1),
+                np.less_equal(planet_params[:, self.i_M], self.max_M2),
             )
             iM2 = np.logical_and(
                 iM2,
-                np.less_equal(
-                    planet_params[:, self.i_Z], self.max_Z2, dtype=self.dtype
-                ),
+                np.less_equal(planet_params[:, self.i_Z], self.max_Z2),
             )
             iM3 = np.logical_and(
-                np.greater(planet_params[:, self.i_M], self.max_M2, dtype=self.dtype),
-                np.less_equal(
-                    planet_params[:, self.i_M], self.max_M3, dtype=self.dtype
-                ),
+                np.greater(planet_params[:, self.i_M], self.max_M2),
+                np.less_equal(planet_params[:, self.i_M], self.max_M3),
             )
             iM3 = np.logical_and(
                 iM3,
-                np.less_equal(
-                    planet_params[:, self.i_Z], self.max_Z3, dtype=self.dtype
-                ),
+                np.less_equal(planet_params[:, self.i_Z], self.max_Z3),
             )
             iM4 = np.logical_and(
-                np.greater(planet_params[:, self.i_M], self.max_M3, dtype=self.dtype),
-                np.less_equal(
-                    planet_params[:, self.i_M], self.max_M4, dtype=self.dtype
-                ),
+                np.greater(planet_params[:, self.i_M], self.max_M3),
+                np.less_equal(planet_params[:, self.i_M], self.max_M4),
             )
             iM4 = np.logical_and(
                 iM4,
-                np.less_equal(
-                    planet_params[:, self.i_Z], self.max_Z4, dtype=self.dtype
-                ),
+                np.less_equal(planet_params[:, self.i_Z], self.max_Z4),
             )
             i2 = np.logical_or(iM1, iM2)
             i2 = np.logical_or(i2, iM3)
             i2 = np.logical_or(i2, iM4)
             i3 = np.logical_and(
-                np.greater_equal(
-                    planet_params[:, self.i_logF], self.min_logF, dtype=self.dtype
-                ),
-                np.less_equal(
-                    planet_params[:, self.i_logF], self.max_logF, dtype=self.dtype
-                ),
+                np.greater_equal(planet_params[:, self.i_logF], self.min_logF),
+                np.less_equal(planet_params[:, self.i_logF], self.max_logF),
             )
             i4 = np.logical_and(
-                np.greater_equal(
-                    planet_params[:, self.i_Z_atm], self.min_Ze, dtype=self.dtype
-                ),
-                np.less_equal(
-                    planet_params[:, self.i_Z_atm], self.max_Ze, dtype=self.dtype
-                ),
+                np.greater_equal(planet_params[:, self.i_Z_atm], self.min_Ze),
+                np.less_equal(planet_params[:, self.i_Z_atm], self.max_Ze),
             )
-
             i = np.logical_and(i1, i2)
             i = np.logical_and(i, i3)
             i = np.logical_and(i, i4)
