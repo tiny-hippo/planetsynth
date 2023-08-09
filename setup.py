@@ -12,7 +12,7 @@ classifiers = [
 
 setup(
     name="planetsynth",
-    version="1.0.2",
+    version="1.0.3",
     description="a python tool to generate cooling tracks for giant planets",
     url="https://github.com/tiny-hippo/planetsynth",
     author="Simon Müller",
