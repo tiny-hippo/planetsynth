@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -12,7 +12,7 @@ classifiers = [
 
 setup(
     name="planetsynth",
-    version="1.0.3",
+    version="1.0.4",
     description="a python tool to generate cooling tracks for giant planets",
     url="https://github.com/tiny-hippo/planetsynth",
     author="Simon Müller",

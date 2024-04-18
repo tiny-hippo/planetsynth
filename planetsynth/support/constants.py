@@ -1,4 +1,4 @@
-""" This module contains some useful constants in cgs units. """
+"""This module contains some useful constants in cgs units."""
 
 G = 6.67e-8  # gravitational constant
 sigma_b = 5.6704e-5  # boltzmann constant

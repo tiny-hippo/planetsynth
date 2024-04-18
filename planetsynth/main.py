@@ -3,10 +3,12 @@ import pickle
 import zipfile
 from pathlib import Path
 from typing import Tuple
+
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
-from scipy.interpolate import interp1d
-from planetsynth.support.constants import M_jup, R_jup, L_sun, sigma_b, G
+from scipy.interpolate import PchipInterpolator, interp1d
+
+from planetsynth.support.constants import G, L_sun, M_jup, R_jup, sigma_b
 
 
 class PlanetSynth:
@@ -94,9 +96,10 @@ class PlanetSynth:
         for zip_name in zips:
             if "zip" not in zip_name:
                 continue
-            with open(os.path.join(zip_path, "tmp.zip"), "ab") as f:
-                with open(os.path.join(zip_path, zip_name), "rb") as z:
-                    f.write(z.read())
+            with open(os.path.join(zip_path, "tmp.zip"), "ab") as f, open(
+                os.path.join(zip_path, zip_name), "rb"
+            ) as z:
+                f.write(z.read())
 
         with zipfile.ZipFile(os.path.join(zip_path, "tmp.zip"), "r") as zip_obj:
             zip_obj.extractall(zip_path)
@@ -230,7 +233,7 @@ class PlanetSynth:
             raise ValueError("Failed in __check_input: input has the wrong shape.")
 
     def __get_time_interpolant(
-        self, prediction: ArrayLike, kind: str = "cubic"
+        self, prediction: ArrayLike, kind: str = "cubic", extrapolate: bool = False
     ) -> interp1d:
         """Helper function to create a 1d interpolant in time.
 
@@ -242,7 +245,21 @@ class PlanetSynth:
         Returns:
             interp1d: Returns the interp1d object
         """
-        return interp1d(self.log_time, prediction.T, axis=1, kind=kind)
+        if kind == "pchip":
+            return PchipInterpolator(
+                self.log_time, prediction.T, axis=1, extrapolate=extrapolate
+            )
+        else:
+            bounds_error = not extrapolate
+            fill_value = "extrapolate" if extrapolate else np.nan
+            return interp1d(
+                self.log_time,
+                prediction.T,
+                axis=1,
+                kind=kind,
+                bounds_error=bounds_error,
+                fill_value=fill_value,
+            )
 
     def __get_Teff(self, prediction: ArrayLike) -> NDArray:
         """Calculates the effective temperature of a black body given its
@@ -383,7 +400,11 @@ class PlanetSynth:
         return res
 
     def predict(
-        self, logt: ArrayLike, planet_params: ArrayLike, kind: str = "cubic"
+        self,
+        logt: ArrayLike,
+        planet_params: ArrayLike,
+        kind: str = "cubic",
+        extrapolate: bool = False,
     ) -> NDArray:
         """Predicts the radius, log(luminosity) and effective temperature
         at a specific log(time) [yr] for a set of planetary parameters
@@ -410,6 +431,9 @@ class PlanetSynth:
                 Z_atm: 0 < Ze < min(0.1, Z)
                 logF: 1 < logF [erg/s/cm2] < 9
             kind (str, optional): Order of interpolation. Defaults to "cubic".
+            extrapolate (bool, optional): Extrapolate the time interpolation.
+                Warning: Extrapolation may lead to unphysical results.
+                Defaults to False.
 
         Returns:
             ArrayLike: Array of the synthetic cooling track calculated
@@ -422,7 +446,9 @@ class PlanetSynth:
         if not isinstance(logt, np.ndarray):
             logt = np.array(logt, dtype=self.dtype)
 
-        if np.any(logt < self.min_logage) or np.any(logt > self.max_logage):
+        if not extrapolate and (
+            np.any(logt < self.min_logage) or np.any(logt > self.max_logage)
+        ):
             raise ValueError("Failed in predict because logt is out of range.")
 
         prediction = self.synthesize(planet_params)
@@ -443,9 +469,13 @@ class PlanetSynth:
                 result.fill(np.nan)
                 i = np.where(np.isfinite(prediction))
                 i = np.unique(i[0])
-                f = self.__get_time_interpolant(prediction[i], kind=kind)
+                f = self.__get_time_interpolant(
+                    prediction[i], kind=kind, extrapolate=extrapolate
+                )
                 result[i] = np.transpose(f(logt))
             return result
         else:
-            f = self.__get_time_interpolant(prediction, kind=kind)
+            f = self.__get_time_interpolant(
+                prediction, kind=kind, extrapolate=extrapolate
+            )
             return np.transpose(f(logt))
