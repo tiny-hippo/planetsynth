@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
+
 from .constants import sigma_b
 
 
