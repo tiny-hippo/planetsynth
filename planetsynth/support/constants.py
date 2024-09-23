@@ -21,10 +21,10 @@ R_sun = 6.957e10  # solar radius
 L_sun = 3.828e33  # solar luminosity
 
 M_jup = mu_jup / G  # jupiter mass
-R_jup = 7.1492e9  # jupiter equatorial radius
-R_jup_eq = R_jup
+R_jup_eq = 7.1492e9  # jupiter equatorial radius
 R_jup_polar = 6.6854e9  # jupiter polar radius
 R_jup_vol = 6.9911e9  # jupiter volumetric mean radius
+R_jup = R_jup_vol
 
 M_earth = mu_earth / G  # earth mass
 R_earth = 6.3781e8  # earth equatorial radius
