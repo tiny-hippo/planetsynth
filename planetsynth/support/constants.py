@@ -27,8 +27,8 @@ R_jup_vol = 6.9911e9  # jupiter volumetric mean radius
 R_jup = R_jup_vol
 
 M_earth = mu_earth / G  # earth mass
-R_earth = 6.3781e8  # earth equatorial radius
-R_earth_eq = R_earth
+R_earth_eq = 6.3781e8  # earth equatorial radius
 R_earth_polar = 6.3568e8  # earth polar radius
 R_earth_vol = 6.371e8  # earth volumetric mean radius
+R_earth = R_earth_vol
 F_earth = 1.361e6  # earth flux
